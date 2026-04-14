@@ -1,28 +1,79 @@
-from flask import Flask
+from flask import Flask, render_template, request, redirect
 
 app = Flask(__name__)
 
-students = [
-    {"name": "Rahul", "marks": [80, 75, 90]}
-]
+students = []
+student_names = set()
 
-def calculate_avg(marks):
-    return sum(marks) / 3
 
-@app.route("/")
+def calculate_average(marks):
+    try:
+        return sum(marks) / len(marks)
+    except ZeroDivisionError:
+        return 0
+
+
+@app.route('/')
 def home():
-    output = "<h1>Student Report</h1>"
+    return render_template('index.html', students=students)
 
-    for s in students:
-        avg = calculate_avg(s["marks"])
-        output += f"""
-        <hr>
-        <h3>Name: {s['name']}</h3>
-        <p>Marks: {s['marks']}</p>
-        <p>Average: {avg:.2f}</p>
-        """
 
-    return output
+@app.route('/add', methods=['GET', 'POST'])
+def add_student():
+    if request.method == 'POST':
+        name = request.form['name']
+
+        if name in student_names:
+            return "Student already exists!"
+
+        try:
+            marks = [
+                float(request.form['m1']),
+                float(request.form['m2']),
+                float(request.form['m3'])
+            ]
+        except ValueError:
+            return "Invalid marks!"
+
+        avg = calculate_average(marks)
+
+        student = {
+            "name": name,
+            "marks": marks,
+            "average": avg
+        }
+
+        students.append(student)
+        student_names.add(name)
+
+        return redirect('/')
+
+    return render_template('add.html')
+
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    result = None
+
+    if request.method == 'POST':
+        name = request.form['name']
+
+        for s in students:
+            if s['name'].lower() == name.lower():
+                result = s
+                break
+
+    return render_template('search.html', result=result)
+
+
+@app.route('/delete/<name>')
+def delete(name):
+    global students
+
+    students = [s for s in students if s['name'] != name]
+    student_names.discard(name)
+
+    return redirect('/')
 
 
 if __name__ == "__main__":
