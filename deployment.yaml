@@ -16,4 +16,4 @@ spec:
       - name: my-container
         image: vamsi6997/myimage:v1
         ports:
-        - containerPort: 80
+        - containerPort: 5000
