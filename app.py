@@ -1,5 +1,8 @@
 from flask import Flask, render_template, request, redirect
 
+# 🔴 NEW: import os (to read environment variables)
+import os
+
 app = Flask(__name__)
 
 students = []
@@ -76,5 +79,14 @@ def delete(name):
     return redirect('/')
 
 
+# 🔴 UPDATED BLOCK STARTS HERE
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    # 🔴 NEW: read port from environment variable
+    port = int(os.environ.get("APP_PORT", 5000))
+
+    # 🔴 OPTIONAL (for learning visibility)
+    mode = os.environ.get("APP_MODE", "dev")
+    print(f"Running in {mode} mode on port {port}")
+
+    app.run(host="0.0.0.0", port=port)
+# 🔴 UPDATED BLOCK ENDS HERE
