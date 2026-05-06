@@ -4,16 +4,34 @@ metadata:
   name: my-app
 spec:
   replicas: 2
+
   selector:
     matchLabels:
       app: my-app
+
   template:
     metadata:
       labels:
         app: my-app
+
     spec:
       containers:
       - name: my-container
-        image: vamsi6997/myimage:dev
+        image: vamsi6997/myimage:dev   # 👈 your image
+
         ports:
         - containerPort: 5000
+
+        # 🔴 THIS IS THE PART WE ADD (ConfigMap connection)
+        env:
+        - name: APP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: my-config     # 👈 ConfigMap name
+              key: APP_PORT       # 👈 key inside ConfigMap
+
+        - name: APP_MODE
+          valueFrom:
+            configMapKeyRef:
+              name: my-config
+              key: APP_MODE
